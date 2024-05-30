@@ -1,0 +1,31 @@
+name: Merge upstream Updater
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Merge upstream changes to Updater application
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          repository: 'lifehackerhansol-android/android_packages_apps_Updater'
+          ref: 'lineage-21.0'
+          fetch-depth: 0
+      - name: Fetch and merge upstream changes
+        run: |
+          git config --local user.name "Jenkins"
+          git config --local user.email "jenkins@noreply.hansol.ca"
+          git fetch https://github.com/LineageOS/android_packages_apps_Updater lineage-21.0
+          git merge FETCH_HEAD
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          repository: 'lifehackerhansol-android/android_packages_apps_Updater'
+          branch: 'lineage-21.0'
+          github_token: ${{ secrets.UPDATER_TOKEN}}
+
